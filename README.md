@@ -4,6 +4,9 @@
 
 Starter templates for [EmDash](https://github.com/emdash-cms/emdash), a full-stack TypeScript CMS built on Astro. Each template ships with seed data so you can see a working site immediately.
 
+NaruNaru Group
+
+
 ## Quick Start
 
 The fastest way to get started is the CLI:
