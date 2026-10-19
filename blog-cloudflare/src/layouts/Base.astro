@@ -105,6 +105,7 @@ function navCurrent(url: string): "page" | "true" | undefined {
 const lang = getSiteLocale() ?? "ja";
 const monogram = [...siteTitle.trim()][0]?.toUpperCase() ?? "";
 const year = new Date().getFullYear();
+const copyrightYears = year > 2025 ? `2025–${year}` : "2025";
 ---
 
 <!doctype html>
@@ -346,8 +347,7 @@ const year = new Date().getFullYear();
 			<div class="band site-footer__bottom">
 				<div class="frame site-footer__bottom-inner">
 					<p class="site-footer__meta">
-						{`© ${year} ${siteTitle}.`} Powered by{" "}
-						<a href="https://emdashcms.com">EmDash</a>
+						{`© ${copyrightYears} Kitagawa Research Institute. All Rights Reserved.`}
 					</p>
 					<div class="theme-switcher" role="group" aria-label="表示テーマ">
 						<button
