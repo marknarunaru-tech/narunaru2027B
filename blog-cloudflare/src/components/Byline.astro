@@ -98,8 +98,8 @@ const hidden = people.slice(max).map((person) => person.name);
 					<>
 						{index > 0 &&
 							(index === shown.length - 1 && hidden.length === 0
-								? " and "
-								: ", ")}
+								? "、"
+								: "、")}
 						{name}
 					</>
 				))}
@@ -108,11 +108,11 @@ const hidden = people.slice(max).map((person) => person.name);
 						<span
 							class="byline__more"
 							aria-hidden="true"
-							title={hidden.join(", ")}
+							title={hidden.join("、")}
 						>
 							+{hidden.length}
 						</span>
-						<span class="sr-only">and {hidden.join(", ")}</span>
+						<span class="sr-only">ほか {hidden.join("、")}</span>
 					</>
 				)}
 			</span>

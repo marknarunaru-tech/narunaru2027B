@@ -8,6 +8,9 @@ import Base from "../layouts/Base.astro";
 import PostCard from "../components/PostCard.astro";
 import { resolveBlogSiteIdentity } from "../utils/site-identity";
 
+// Only signed-in editors see the admin shortcut in the empty state
+const isLoggedIn = !!Astro.locals.user;
+
 // Limit to what we render (1 featured + 6 grid). The DB does the slicing
 // instead of fetching every post and discarding the tail in JS.
 const POSTS_PER_PAGE = 7;
@@ -65,7 +68,7 @@ const gridPostsWithTags = gridPosts.map((post) => ({
 	<header class="band intro">
 		<div class="frame home-intro">
 			<div>
-				<p class="eyebrow">Blog</p>
+				<p class="eyebrow">研究所だより</p>
 				<h1 class="intro__title">{siteTitle}</h1>
 				{siteTagline && <p class="intro__subtitle">{siteTagline}</p>}
 			</div>
@@ -87,7 +90,7 @@ const gridPostsWithTags = gridPosts.map((post) => ({
 					<path d="M4 4a16 16 0 0 1 16 16"></path>
 					<circle cx="5" cy="19" r="1"></circle>
 				</svg>
-				RSS feed
+				RSSフィード
 			</a>
 		</div>
 	</header>
@@ -97,15 +100,17 @@ const gridPostsWithTags = gridPosts.map((post) => ({
 			<section class="band section">
 				<div class="frame">
 					<div class="empty-state">
-						<h2 class="empty-state__title">No posts yet</h2>
+						<h2 class="empty-state__title">ただいま準備中です</h2>
 						<p class="empty-state__text">
-							Create your first post in the admin panel.
+							記事は順次公開してまいります。もうしばらくお待ちください。
 						</p>
-						<div class="empty-state__actions">
-							<a href="/_emdash/admin/content/posts/new" class="btn">
-								Create a post
-							</a>
-						</div>
+						{isLoggedIn && (
+							<div class="empty-state__actions">
+								<a href="/_emdash/admin/content/posts/new" class="btn">
+									記事を作成する
+								</a>
+							</div>
+						)}
 					</div>
 				</div>
 			</section>
@@ -130,11 +135,11 @@ const gridPostsWithTags = gridPosts.map((post) => ({
 						<div class="frame">
 							<div class="section-head">
 								<h2 id="latest-posts" class="section-head__title">
-									Latest posts
+									新着記事
 								</h2>
 								{hasMorePosts && (
 									<a href="/posts" class="arrow-link">
-										View all<span class="sr-only"> posts</span>
+										すべて見る<span class="sr-only">（記事一覧）</span>
 										<svg
 											viewBox="0 0 24 24"
 											fill="none"

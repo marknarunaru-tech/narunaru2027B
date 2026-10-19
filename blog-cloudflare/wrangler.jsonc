@@ -22,4 +22,6 @@
 	"triggers": {
 		"crons": ["* * * * *"],
 	},
+	// Required by `wrangler preview` (Cloudflare branch previews). Previews don't inherit production bindings.
+	"previews": {},
 }
