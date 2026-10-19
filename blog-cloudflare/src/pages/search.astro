@@ -27,7 +27,7 @@ function escapeHtml(text: string) {
 // title. When it is the whole title, show its highlights in the heading
 // instead of repeating the title underneath.
 const rows = results.map((result) => {
-	const title = result.title ?? "Untitled";
+	const title = result.title ?? "無題";
 	const snippetIsTitle =
 		result.snippet?.replaceAll("<mark>", "").replaceAll("</mark>", "") ===
 		escapeHtml(title);
@@ -40,26 +40,26 @@ const rows = results.map((result) => {
 });
 
 const countLabel = nextCursor
-	? `Top ${rows.length} results`
-	: `${rows.length} ${rows.length === 1 ? "result" : "results"}`;
+	? `上位${rows.length}件`
+	: `${rows.length}件`;
 ---
 
 <Base
-	title={query ? `Search: ${query}` : "Search"}
-	description="Search blog posts"
+	title={query ? `検索：${query}` : "検索"}
+	description="記事を検索"
 >
 	<header class="band intro">
 		<div class="frame">
-			<p class="eyebrow">Search</p>
-			<h1 class="intro__title">What are you looking for?</h1>
+			<p class="eyebrow">検索</p>
+			<h1 class="intro__title">何をお探しですか？</h1>
 			<form
 				method="get"
 				action="/search"
 				role="search"
-				aria-label="Posts"
+				aria-label="記事検索"
 				class="search-form"
 			>
-				<label for="search-query" class="sr-only">Search posts</label>
+				<label for="search-query" class="sr-only">記事を検索</label>
 				<div class="search-field">
 					<svg
 						class="search-field__icon"
@@ -79,17 +79,17 @@ const countLabel = nextCursor
 						type="search"
 						name="q"
 						value={query}
-						placeholder="Search posts"
+						placeholder="キーワードを入力"
 						autofocus={!query}
 					/>
-					<button type="submit" class="btn search-field__submit">Search</button>
+					<button type="submit" class="btn search-field__submit">検索</button>
 				</div>
 			</form>
 			{
 				!query && (
 					<p class="search-hint">
-						Searches post titles and full text. Not sure where to start?{" "}
-						<a href="/posts">Browse all posts</a>.
+						記事のタイトルと本文から検索します。どこから読めばよいか迷ったら、
+						<a href="/posts">記事一覧</a>からどうぞ。
 					</p>
 				)
 			}
@@ -104,10 +104,10 @@ const countLabel = nextCursor
 						<>
 							<div class="section-head">
 								<p class="search-summary">
-									<strong>{countLabel}</strong> for “{query}”
+									「{query}」の検索結果：<strong>{countLabel}</strong>
 								</p>
 								<a href="/posts" class="arrow-link">
-									All posts
+									記事一覧
 									<svg
 										viewBox="0 0 24 24"
 										fill="none"
@@ -161,14 +161,13 @@ const countLabel = nextCursor
 						</>
 					) : (
 						<div class="empty-state">
-							<h2 class="empty-state__title">No results for “{query}”</h2>
+							<h2 class="empty-state__title">「{query}」に一致する記事は見つかりませんでした</h2>
 							<p class="empty-state__text">
-								Check the spelling, try fewer or different words, or browse
-								every post instead.
+								言葉を変えたり、キーワードを減らしたりして、もう一度お試しください。記事一覧から探すこともできます。
 							</p>
 							<div class="empty-state__actions">
 								<a href="/posts" class="btn btn--ghost">
-									Browse all posts
+									記事一覧を見る
 								</a>
 							</div>
 						</div>

@@ -52,20 +52,20 @@ const filteredPosts = posts.map((post) => ({
 ---
 
 <Base
-	title={`Posts tagged "${term.label}"`}
-	description={`All posts tagged with ${term.label}`}
+	title={`「${term.label}」タグの記事`}
+	description={`「${term.label}」のタグが付いた記事の一覧`}
 >
 	<header class="band intro">
 		<div class="frame archive-intro">
 			<div class="archive-intro__text">
-				<p class="eyebrow">Tag</p>
+				<p class="eyebrow">タグ</p>
 				<h1 class="intro__title">{term.label}</h1>
 				<p class="intro__lead">
-					{term.description || `Posts tagged ${term.label}, newest first.`}
+					{term.description || `「${term.label}」のタグが付いた記事を、新しい順に並べています。`}
 				</p>
 			</div>
 			<a href="/posts" class="arrow-link">
-				All posts
+				記事一覧
 				<svg
 					viewBox="0 0 24 24"
 					fill="none"
@@ -104,19 +104,19 @@ const filteredPosts = posts.map((post) => ({
 				) : (
 					<div class="empty-state">
 						<h2 class="empty-state__title">
-							{cursor ? "No more posts" : "Nothing here yet"}
+							{cursor ? "これ以上の記事はありません" : "まだ記事がありません"}
 						</h2>
 						<p class="empty-state__text">
 							{cursor
-								? "This page is past the last post."
-								: `No posts have been tagged ${term.label} so far.`}
+								? "このページより先に記事はありません。"
+								: `「${term.label}」のタグが付いた記事はまだありません。`}
 						</p>
 						<div class="empty-state__actions">
 							<a
 								href={cursor ? `/tag/${term.slug}` : "/posts"}
 								class="btn btn--ghost"
 							>
-								{cursor ? "Back to the first page" : "Browse all posts"}
+								{cursor ? "最初のページへ戻る" : "記事一覧を見る"}
 							</a>
 						</div>
 					</div>

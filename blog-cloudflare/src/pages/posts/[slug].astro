@@ -139,11 +139,11 @@ const hasHeadings = (post.data.content ?? []).some(
 							<path d="M19 12H5"></path>
 							<path d="m12 19-7-7 7-7"></path>
 						</svg>
-						All posts
+						記事一覧
 					</a>
 					{
 						tags.length > 0 && (
-							<ul class="chips post-header__tags" aria-label="Tags">
+							<ul class="chips post-header__tags" aria-label="タグ">
 								{tags.map((t) => (
 									<li>
 										<a href={`/tag/${t.slug}`} class="chip">
@@ -174,7 +174,7 @@ const hasHeadings = (post.data.content ?? []).some(
 									</time>
 								)
 							}
-							<span>{readingTime} min read</span>
+							<span>約{readingTime}分で読めます</span>
 						</p>
 					</div>
 				</div>
@@ -205,7 +205,7 @@ const hasHeadings = (post.data.content ?? []).some(
 							bylines.length > 0 && (
 								<div class="post-fact">
 									<dt class="eyebrow">
-										{bylines.length === 1 ? "Author" : "Authors"}
+										執筆者
 									</dt>
 									<dd>
 										<Byline bylines={bylines} layout="list" />
@@ -216,7 +216,7 @@ const hasHeadings = (post.data.content ?? []).some(
 						{
 							publishedAt && (
 								<div class="post-fact">
-									<dt class="eyebrow">Published</dt>
+									<dt class="eyebrow">公開日</dt>
 									<dd>
 										<time datetime={publishedAt.toISOString()}>
 											{publishDate}
@@ -226,8 +226,8 @@ const hasHeadings = (post.data.content ?? []).some(
 							)
 						}
 						<div class="post-fact">
-							<dt class="eyebrow">Reading time</dt>
-							<dd>{readingTime} min</dd>
+							<dt class="eyebrow">読了時間</dt>
+							<dd>約{readingTime}分</dd>
 						</div>
 					</dl>
 				</div>
@@ -238,9 +238,35 @@ const hasHeadings = (post.data.content ?? []).some(
 					</div>
 
 					<section class="post-comments" aria-labelledby="comments-title">
-						<h2 id="comments-title" class="eyebrow">Discussion</h2>
-						<Comments collection="posts" contentId={post.data.id} threaded />
-						<CommentForm collection="posts" contentId={post.data.id} />
+						<h2 id="comments-title" class="eyebrow">コメント</h2>
+						<Comments
+							collection="posts"
+							contentId={post.data.id}
+							threaded
+							locale="ja-JP"
+							labels={{
+								heading: (count) =>
+									count === 0
+										? "まだコメントはありません"
+										: `コメント（${count}件）`,
+								member: "サイトメンバー",
+								like: "いいね",
+							}}
+						/>
+						<CommentForm
+							collection="posts"
+							contentId={post.data.id}
+							labels={{
+								name: "お名前",
+								email: "メールアドレス",
+								comment: "コメント",
+								submit: "コメントを送信",
+								submitting: "送信中…",
+								published: "コメントを公開しました",
+								pending: "コメントを受け付けました。確認後に公開されます",
+								networkError: "通信エラーが発生しました。もう一度お試しください。",
+							}}
+						/>
 					</section>
 				</div>
 
@@ -251,12 +277,12 @@ const hasHeadings = (post.data.content ?? []).some(
 						hidden={!hasHeadings}
 						data-toc
 					>
-						<h2 id="toc-title" class="eyebrow">On this page</h2>
+						<h2 id="toc-title" class="eyebrow">目次</h2>
 						<ol class="toc__list" data-toc-list></ol>
 					</nav>
 
 					<aside class="post-widgets" aria-labelledby="widgets-title">
-						<h2 id="widgets-title" class="sr-only">More from the blog</h2>
+						<h2 id="widgets-title" class="sr-only">関連情報</h2>
 						<WidgetArea name="sidebar" />
 					</aside>
 				</div>
@@ -270,10 +296,10 @@ const hasHeadings = (post.data.content ?? []).some(
 				<div class="frame related">
 					<div class="section-head">
 						<h2 id="continue-reading" class="section-head__title">
-							Continue reading
+							ほかの記事も読む
 						</h2>
 						<a href="/posts" class="arrow-link">
-							All posts
+							記事一覧
 							<svg
 								viewBox="0 0 24 24"
 								fill="none"
