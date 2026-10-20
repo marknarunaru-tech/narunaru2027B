@@ -1,0 +1,29 @@
+---
+interface Props {
+	placeholder?: string;
+}
+
+const { placeholder } = Astro.props;
+// The core widget's default placeholder is English; use Japanese instead.
+const label =
+	placeholder && !/^search\b/i.test(placeholder.trim())
+		? placeholder
+		: "キーワードを入力";
+---
+
+<form
+	method="get"
+	action="/search"
+	class="widget-search"
+	role="search"
+	aria-label="記事検索"
+>
+	<input
+		type="search"
+		name="q"
+		placeholder={label}
+		aria-label="検索キーワード"
+		class="widget-search__input"
+	/>
+	<button type="submit" class="widget-search__button">検索</button>
+</form>

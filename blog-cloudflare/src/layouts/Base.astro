@@ -1,7 +1,6 @@
 ---
 import { getMenuWithCacheHint, getSiteSettingsWithCacheHint } from "emdash";
 import {
-	WidgetArea,
 	EmDashHead,
 	EmDashBodyStart,
 	EmDashBodyEnd,
@@ -9,6 +8,7 @@ import {
 import { createPublicPageContext } from "emdash/page";
 import LiveSearch from "emdash/ui/search";
 import { Font } from "astro:assets";
+import WidgetArea from "../components/WidgetArea.astro";
 import { getSiteLocale } from "../utils/locale";
 import { resolveBlogSiteIdentity } from "../utils/site-identity";
 import "../styles/tokens.css";
@@ -1270,6 +1270,25 @@ const copyrightYears = year > 2025 ? `2025–${year}` : "2025";
 				letter-spacing: var(--tracking-wider);
 				text-transform: uppercase;
 				color: var(--color-muted);
+			}
+
+			/* The search API labels each result with its English collection
+			   name ("posts", "pages"); show it in Japanese instead. */
+			.site-search :global(.site-search-result[data-collection] .emdash-live-search-result-collection) {
+				font-size: 0;
+				letter-spacing: 0;
+			}
+
+			.site-search :global(.site-search-result[data-collection] .emdash-live-search-result-collection::after) {
+				font-size: 11px;
+			}
+
+			.site-search :global(.site-search-result[data-collection="posts"] .emdash-live-search-result-collection::after) {
+				content: "記事";
+			}
+
+			.site-search :global(.site-search-result[data-collection="pages"] .emdash-live-search-result-collection::after) {
+				content: "ページ";
 			}
 
 			.site-search :global(.emdash-live-search-result-snippet) {

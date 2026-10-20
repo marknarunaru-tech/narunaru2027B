@@ -1,0 +1,111 @@
+---
+/**
+ * Japanese drop-in for EmDash's <WidgetArea>.
+ *
+ * The core widget components ship with hard-coded English text ("Search…",
+ * "No tags yet", "July 10, 2026") and format dates in UTC. This renders the
+ * same widget areas with the same markup and class names, so the existing
+ * styles still apply, but with Japanese text and dates in Japan time.
+ *
+ * Widget titles come from the admin (Appearance → Widgets). Titles still set
+ * to the template's English defaults are shown in Japanese; any other title is
+ * shown exactly as entered.
+ */
+import { getMenu, getWidgetAreaWithCacheHint, sanitizeHref } from "emdash";
+import { PortableText } from "emdash/ui";
+import Archives from "./widgets/Archives.astro";
+import Categories from "./widgets/Categories.astro";
+import RecentPosts from "./widgets/RecentPosts.astro";
+import Search from "./widgets/Search.astro";
+import Tags from "./widgets/Tags.astro";
+
+interface Props {
+	name: string;
+	class?: string;
+}
+
+const { name, class: className } = Astro.props;
+const { data: area, cacheHint } = await getWidgetAreaWithCacheHint(name);
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+
+const componentMap = {
+	"core:recent-posts": RecentPosts,
+	"core:categories": Categories,
+	"core:tags": Tags,
+	"core:search": Search,
+	"core:archives": Archives,
+};
+
+/** The template's default English widget titles, in Japanese. */
+const TITLE_JA: Record<string, string> = {
+	search: "検索",
+	categories: "カテゴリー",
+	category: "カテゴリー",
+	tags: "タグ",
+	tag: "タグ",
+	"recent posts": "最近の記事",
+	"latest posts": "最近の記事",
+	archives: "アーカイブ",
+	archive: "アーカイブ",
+	about: "このサイトについて",
+};
+
+function localizeTitle(title: string | undefined): string | undefined {
+	if (!title) return title;
+	return TITLE_JA[title.trim().toLowerCase()] ?? title;
+}
+
+const widgets = await Promise.all(
+	(area?.widgets ?? []).map(async (widget) => ({
+		widget,
+		title: localizeTitle(widget.title),
+		menu:
+			widget.type === "menu" && widget.menuName
+				? await getMenu(widget.menuName)
+				: null,
+		Component:
+			widget.type === "component" && widget.componentId
+				? (componentMap[widget.componentId as keyof typeof componentMap] ??
+					null)
+				: null,
+	})),
+);
+---
+
+{
+	widgets.length > 0 && (
+		<div class:list={["widget-area", className]} data-widget-area={name}>
+			{widgets.map(({ widget, title, menu, Component }) => (
+				<div
+					class="widget"
+					data-widget-id={widget.id}
+					data-widget-type={widget.type}
+				>
+					{title && <h3 class="widget__title">{title}</h3>}
+					<div class="widget__content">
+						{widget.type === "content" && widget.content && (
+							<PortableText value={widget.content} />
+						)}
+						{menu && (
+							<nav class="widget__menu" aria-label={title || undefined}>
+								<ul>
+									{menu.items.map((item) => (
+										<li>
+											<a
+												href={sanitizeHref(item.url)}
+												title={item.titleAttr || undefined}
+											>
+												{item.label}
+											</a>
+										</li>
+									))}
+								</ul>
+							</nav>
+						)}
+						{Component && <Component {...(widget.componentProps || {})} />}
+					</div>
+				</div>
+			))}
+		</div>
+	)
+}
