@@ -620,7 +620,14 @@ const copyrightYears = year > 2025 ? `2025–${year}` : "2025";
 					font-weight: var(--font-weight-heading);
 					letter-spacing: var(--tracking-snug);
 					text-wrap: balance;
-					overflow-wrap: break-word;
+					/*
+					 * Break Japanese headings between phrases (なるなる / グループについて)
+					 * instead of mid-word (グル / ープ). Chrome/Edge 119+; other browsers
+					 * ignore it and wrap as before. A phrase longer than the line may
+					 * still break anywhere, so a title never overflows on phones.
+					 */
+					word-break: auto-phrase;
+					overflow-wrap: anywhere;
 				}
 
 				h1 {
@@ -767,7 +774,8 @@ const copyrightYears = year > 2025 ? `2025–${year}` : "2025";
 					color: var(--color-muted);
 					max-width: 22ch;
 					text-wrap: balance;
-					overflow-wrap: break-word;
+					word-break: auto-phrase;
+					overflow-wrap: anywhere;
 				}
 
 				.intro__lead {

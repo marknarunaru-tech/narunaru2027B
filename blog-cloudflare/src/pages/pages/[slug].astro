@@ -75,6 +75,12 @@ const seo = getSeoMeta(page, {
 			column-gap: clamp(2rem, 1rem + 4vw, 6rem);
 		}
 
+		/* The title sits in the narrow left column here; at full display size
+		   only about seven characters fit per line. */
+		.page__title {
+			font-size: min(var(--font-size-display), 2.75rem);
+		}
+
 		.page__header {
 			position: sticky;
 			top: calc(var(--nav-height) + var(--spacing-8));
