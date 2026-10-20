@@ -7,11 +7,12 @@ import {
 	decodeSlug,
 	getSiteSettings,
 } from "emdash";
-import { Image, PortableText, WidgetArea } from "emdash/ui";
+import { Image, PortableText } from "emdash/ui";
 import { Comments, CommentForm } from "emdash/ui/comments";
 import Base from "../../layouts/Base.astro";
 import Byline from "../../components/Byline.astro";
 import PostCard from "../../components/PostCard.astro";
+import WidgetArea from "../../components/WidgetArea.astro";
 import { formatDate } from "../../utils/locale";
 import { getReadingTime } from "../../utils/reading-time";
 import { resolveBlogSiteIdentity } from "../../utils/site-identity";
@@ -264,6 +265,7 @@ const hasHeadings = (post.data.content ?? []).some(
 								submitting: "送信中…",
 								published: "コメントを公開しました",
 								pending: "コメントを受け付けました。確認後に公開されます",
+								error: "コメントを送信できませんでした。入力内容を確認して、もう一度お試しください。",
 								networkError: "通信エラーが発生しました。もう一度お試しください。",
 							}}
 						/>

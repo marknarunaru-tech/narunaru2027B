@@ -1,0 +1,57 @@
+---
+import { getEmDashCollection } from "emdash";
+import { formatYearMonth, getSiteYearMonth } from "../../utils/locale";
+
+interface Props {
+	type?: "monthly" | "yearly";
+	limit?: number;
+}
+
+const { type = "monthly", limit = 12 } = Astro.props;
+
+// Group by the Japan-time calendar, so a post published just after midnight
+// JST on the 1st lands in its own month rather than the month before (UTC).
+const { entries, cacheHint } = await getEmDashCollection("posts", {
+	orderBy: { published_at: "desc" },
+	limit: 1000,
+});
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+
+const groups = new Map<string, { label: string; url: string; count: number }>();
+for (const entry of entries) {
+	const publishedAt = entry.data.publishedAt;
+	if (!publishedAt) continue;
+	const { year, month } = getSiteYearMonth(publishedAt);
+	const mm = String(month).padStart(2, "0");
+	const key = type === "yearly" ? `${year}` : `${year}-${mm}`;
+	const existing = groups.get(key);
+	if (existing) {
+		existing.count++;
+		continue;
+	}
+	groups.set(
+		key,
+		type === "yearly"
+			? { label: `${year}年`, url: `/archives/${year}`, count: 1 }
+			: {
+					label: formatYearMonth(publishedAt),
+					url: `/archives/${year}/${mm}`,
+					count: 1,
+				},
+	);
+}
+const archiveList = [...groups.values()].slice(0, limit);
+---
+
+<ul class="widget-archives">
+	{
+		archiveList.map((archive) => (
+			<li>
+				<a href={archive.url} class="widget-archives__link">
+					{archive.label}
+				</a>
+				<span class="widget-archives__count">({archive.count})</span>
+			</li>
+		))
+	}
+</ul>

@@ -1,0 +1,51 @@
+---
+import { getEmDashCollection } from "emdash";
+import { Image } from "emdash/ui";
+import { formatDate } from "../../utils/locale";
+
+interface Props {
+	count?: number;
+	showThumbnails?: boolean;
+	showDate?: boolean;
+}
+
+const { count = 5, showThumbnails = false, showDate = true } = Astro.props;
+
+const { entries: posts, cacheHint } = await getEmDashCollection("posts", {
+	limit: count,
+	orderBy: { published_at: "desc" },
+});
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+---
+
+<ul class="widget-recent-posts">
+	{
+		posts.map((post) => {
+			const publishedAt = post.data.publishedAt ?? null;
+			return (
+				<li>
+					{showThumbnails && post.data.featured_image && (
+						<Image
+							image={post.data.featured_image}
+							alt=""
+							width={96}
+							height={96}
+							class="widget-recent-posts__thumbnail"
+						/>
+					)}
+					<a href={`/posts/${post.id}`} class="widget-recent-posts__link">
+						{post.data.title || "無題"}
+					</a>
+					{showDate && publishedAt && (
+						<time
+							datetime={publishedAt.toISOString()}
+							class="widget-recent-posts__date"
+						>
+							{formatDate(publishedAt, "long")}
+						</time>
+					)}
+				</li>
+			);
+		})
+	}
+</ul>
