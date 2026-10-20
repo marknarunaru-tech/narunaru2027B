@@ -513,8 +513,9 @@ const copyrightYears = year > 2025 ? `2025–${year}` : "2025";
 				 * defined with light-dark(); these rules pin the scheme when
 				 * the footer switcher sets an explicit choice. With no class,
 				 * color-scheme: light dark follows the OS preference. The
-				 * @supports guard keeps the toggle from forcing dark UA form
-				 * controls on browsers stuck on the plain-light fallback.
+				 * colors for an explicit choice are pinned in tokens.css
+				 * (:root.light / :root.dark), since the build lowers
+				 * light-dark() into variables that ignore color-scheme.
 				 */
 				@supports (color: light-dark(#000, #fff)) {
 					:root.light {
