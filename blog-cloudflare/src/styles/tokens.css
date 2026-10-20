@@ -148,8 +148,9 @@
 	}
 
 	/*
-	 * Light-mode values for browsers without light-dark() (Safari < 17.5,
-	 * Chrome < 123). Must mirror the light values above.
+	 * Values for browsers without light-dark() (Safari < 17.5,
+	 * Chrome < 123): light by default, dark when the OS is dark and no
+	 * explicit choice is set. Must mirror the values above.
 	 */
 	@supports not (color: light-dark(#000, #fff)) {
 		:root {
@@ -172,5 +173,84 @@
 			--color-brand-hover: #404040;
 			--color-on-brand: #ffffff;
 		}
+
+		/* 端末の設定に合わせる on a phone set to dark mode */
+		@media (prefers-color-scheme: dark) {
+			:root:not(.light) {
+				color-scheme: dark;
+				--color-bg: #0a0a0a;
+				--color-surface: #141414;
+				--color-fill: #1f1f1f;
+				--color-fill-strong: #2a2a2a;
+				--color-text: #ededed;
+				--color-text-secondary: #a3a3a3;
+				--color-muted: #8f8f8f;
+				--color-border: #262626;
+				--color-border-subtle: #1c1c1c;
+				--color-border-strong: #3a3a3a;
+				--color-ring: rgb(255 255 255 / 0.09);
+				--color-media-outline: rgb(255 255 255 / 0.1);
+				--color-shadow: rgb(0 0 0 / 0.4);
+				--color-shadow-strong: rgb(0 0 0 / 0.6);
+				--color-brand: #fafafa;
+				--color-brand-hover: #d4d4d4;
+				--color-on-brand: #0a0a0a;
+			}
+		}
+	}
+
+	/*
+	 * The footer switcher's explicit choices (html.light / html.dark).
+	 *
+	 * These use plain values, not light-dark(), on purpose. The production
+	 * CSS build (Vite + Lightning CSS) lowers light-dark() for older
+	 * browsers into variables that only follow the OS
+	 * prefers-color-scheme media query, so switching color-scheme with a
+	 * class had no effect and the ダーク/ライト buttons did nothing on any
+	 * device. Plain values on a more specific selector always win.
+	 *
+	 * Must mirror the light-dark() values above. If theme.css overrides a
+	 * color with light-dark(), add its two values here too.
+	 */
+	:root.light {
+		color-scheme: light;
+		--color-bg: #fafafa;
+		--color-surface: #ffffff;
+		--color-fill: #f2f2f2;
+		--color-fill-strong: #e8e8e8;
+		--color-text: #171717;
+		--color-text-secondary: #525252;
+		--color-muted: #6b6b6b;
+		--color-border: #e5e5e5;
+		--color-border-subtle: #efefef;
+		--color-border-strong: #d4d4d4;
+		--color-ring: rgb(0 0 0 / 0.07);
+		--color-media-outline: rgb(0 0 0 / 0.1);
+		--color-shadow: rgb(0 0 0 / 0.06);
+		--color-shadow-strong: rgb(0 0 0 / 0.12);
+		--color-brand: #171717;
+		--color-brand-hover: #404040;
+		--color-on-brand: #ffffff;
+	}
+
+	:root.dark {
+		color-scheme: dark;
+		--color-bg: #0a0a0a;
+		--color-surface: #141414;
+		--color-fill: #1f1f1f;
+		--color-fill-strong: #2a2a2a;
+		--color-text: #ededed;
+		--color-text-secondary: #a3a3a3;
+		--color-muted: #8f8f8f;
+		--color-border: #262626;
+		--color-border-subtle: #1c1c1c;
+		--color-border-strong: #3a3a3a;
+		--color-ring: rgb(255 255 255 / 0.09);
+		--color-media-outline: rgb(255 255 255 / 0.1);
+		--color-shadow: rgb(0 0 0 / 0.4);
+		--color-shadow-strong: rgb(0 0 0 / 0.6);
+		--color-brand: #fafafa;
+		--color-brand-hover: #d4d4d4;
+		--color-on-brand: #0a0a0a;
 	}
 }
