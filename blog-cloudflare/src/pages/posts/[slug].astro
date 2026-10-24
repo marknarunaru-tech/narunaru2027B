@@ -13,6 +13,7 @@ import Base from "../../layouts/Base.astro";
 import Byline from "../../components/Byline.astro";
 import PostCard from "../../components/PostCard.astro";
 import WidgetArea from "../../components/WidgetArea.astro";
+import CommentThread from "../../components/CommentThread.astro";
 import { formatDate } from "../../utils/locale";
 import { getReadingTime } from "../../utils/reading-time";
 import { resolveBlogSiteIdentity } from "../../utils/site-identity";
@@ -109,6 +110,18 @@ const hasHeadings = (post.data.content ?? []).some(
 		"style" in block &&
 		(block.style === "h2" || block.style === "h3"),
 );
+
+const commentFormLabels = {
+	name: "お名前",
+	email: "メールアドレス",
+	comment: "コメント",
+	submit: "コメントを送信",
+	submitting: "送信中…",
+	published: "コメントを公開しました",
+	pending: "コメントを受け付けました。確認後に公開されます",
+	error: "コメントを送信できませんでした。入力内容を確認して、もう一度お試しください。",
+	networkError: "通信エラーが発生しました。もう一度お試しください。",
+};
 ---
 
 <Base
@@ -240,34 +253,37 @@ const hasHeadings = (post.data.content ?? []).some(
 
 					<section class="post-comments" aria-labelledby="comments-title">
 						<h2 id="comments-title" class="eyebrow">コメント</h2>
-						<Comments
+						<CommentThread
 							collection="posts"
 							contentId={post.data.id}
-							threaded
-							locale="ja-JP"
-							labels={{
-								heading: (count) =>
-									count === 0
-										? "まだコメントはありません"
-										: `コメント（${count}件）`,
-								member: "サイトメンバー",
-								like: "いいね",
+							formLabels={{
+								...commentFormLabels,
+								comment: "返信",
+								submit: "返信を送信",
+								published: "返信を公開しました",
+								pending: "返信を受け付けました。確認後に公開されます",
+								error: "返信を送信できませんでした。入力内容を確認して、もう一度お試しください。",
 							}}
-						/>
+						>
+							<Comments
+								collection="posts"
+								contentId={post.data.id}
+								threaded
+								locale="ja-JP"
+								labels={{
+									heading: (count) =>
+										count === 0
+											? "まだコメントはありません"
+											: `コメント（${count}件）`,
+									member: "サイトメンバー",
+									like: "いいね",
+								}}
+							/>
+						</CommentThread>
 						<CommentForm
 							collection="posts"
 							contentId={post.data.id}
-							labels={{
-								name: "お名前",
-								email: "メールアドレス",
-								comment: "コメント",
-								submit: "コメントを送信",
-								submitting: "送信中…",
-								published: "コメントを公開しました",
-								pending: "コメントを受け付けました。確認後に公開されます",
-								error: "コメントを送信できませんでした。入力内容を確認して、もう一度お試しください。",
-								networkError: "通信エラーが発生しました。もう一度お試しください。",
-							}}
+							labels={commentFormLabels}
 						/>
 					</section>
 				</div>
@@ -671,6 +687,36 @@ const hasHeadings = (post.data.content ?? []).some(
 		padding-left: 0;
 		padding-inline-start: var(--ec-comment-indent);
 		border-inline-start: 1px solid var(--color-border);
+	}
+
+	/* Reply button (CommentThread) */
+	.post-comments :global(.comment-reply) {
+		margin-block-start: var(--spacing-2);
+	}
+
+	.post-comments :global(.comment-reply__button) {
+		padding: var(--spacing-1) var(--spacing-3);
+		border: 1px solid var(--color-border);
+		border-radius: 999px;
+		background: transparent;
+		color: var(--color-muted);
+		font: inherit;
+		font-size: var(--font-size-xs);
+		cursor: pointer;
+	}
+
+	.post-comments :global(.comment-reply__button:hover),
+	.post-comments :global(.comment-reply__button[aria-expanded="true"]) {
+		color: var(--color-text);
+		border-color: var(--color-text);
+	}
+
+	.post-comments :global(.comment-reply-form .ec-comment-form) {
+		margin-block-start: var(--spacing-4);
+	}
+
+	.post-comments :global(.comment-reply-form[hidden]) {
+		display: none;
 	}
 
 	/* Clipping keeps the form's off-screen honeypot from widening RTL pages */

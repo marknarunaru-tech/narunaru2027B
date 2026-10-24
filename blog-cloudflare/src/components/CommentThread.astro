@@ -1,0 +1,134 @@
+---
+/**
+ * Wraps EmDash's standard <Comments> list (passed as the default slot) and
+ * adds two things the standard component doesn't do:
+ *
+ * 1. Comment dates in Japan time. <Comments> formats dates without a time
+ *    zone, so on Cloudflare Workers they come out in UTC. Each
+ *    <time class="ec-comment-date" datetime="…"> is re-formatted from its
+ *    ISO datetime attribute.
+ * 2. A 返信 (reply) button under every comment. Each button opens a standard
+ *    <CommentForm> rendered with that comment's `parentId`. EmDash attaches a
+ *    reply to a reply to the top-level comment, so threads stay one level
+ *    deep, matching <Comments threaded>.
+ *
+ * Usage:
+ *   <CommentThread collection="posts" contentId={id} formLabels={...}>
+ *     <Comments collection="posts" contentId={id} threaded />
+ *   </CommentThread>
+ */
+import { CommentForm } from "emdash/ui/comments";
+import { formatDateTime } from "../utils/locale";
+
+type FormLabels = NonNullable<Parameters<typeof CommentForm>[0]["labels"]>;
+
+interface Props {
+	collection: string;
+	contentId: string;
+	formLabels?: FormLabels;
+	replyLabel?: string;
+	cancelLabel?: string;
+}
+
+const {
+	collection,
+	contentId,
+	formLabels = {},
+	replyLabel = "返信",
+	cancelLabel = "返信をやめる",
+} = Astro.props;
+
+const listHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+
+const TIME_RE = /<time\b[^>]*\bclass="ec-comment-date\b[^"]*"[^>]*>[\s\S]*?<\/time>/g;
+const DATETIME_RE = /\bdatetime="([^"]+)"/;
+const OPEN_TAG_RE = /^<time\b[^>]*>/;
+
+function toJapanTime(html: string): string {
+	return html.replace(TIME_RE, (match) => {
+		const iso = DATETIME_RE.exec(match)?.[1];
+		const date = iso ? new Date(iso) : undefined;
+		if (!date || Number.isNaN(date.getTime())) return match;
+		const openTag = OPEN_TAG_RE.exec(match)?.[0] ?? "<time>";
+		return `${openTag}${formatDateTime(date)}</time>`;
+	});
+}
+
+// An article's own body is the first ec-comment-body after its opening tag:
+// the header sits in between and replies come after the body.
+const BODY_RE =
+	/(data-comment-id="([^"]+)"[^>]*>[\s\S]*?<div\b[^>]*\bclass="ec-comment-body\b[^"]*"[^>]*>[\s\S]*?<\/div>)/g;
+
+const commentIds: string[] = [];
+
+function escapeAttr(value: string): string {
+	return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+}
+
+function addReplyButtons(html: string): string {
+	return html.replace(BODY_RE, (block, _whole: string, id: string) => {
+		commentIds.push(id);
+		const attrId = escapeAttr(id);
+		return `${block}<div class="comment-reply"><button type="button" class="comment-reply__button" data-reply-to="${attrId}" data-label-open="${escapeAttr(replyLabel)}" data-label-close="${escapeAttr(cancelLabel)}" aria-expanded="false" aria-controls="comment-reply-form-${attrId}">${escapeAttr(replyLabel)}</button></div>`;
+	});
+}
+
+const html = addReplyButtons(toJapanTime(listHtml));
+---
+
+<Fragment set:html={html} />
+
+{
+	commentIds.length > 0 && (
+		<div class="comment-reply-forms" hidden data-comment-reply-forms>
+			{commentIds.map((id) => (
+				<div
+					class="comment-reply-form"
+					id={`comment-reply-form-${id}`}
+					data-reply-form-for={id}
+					hidden
+				>
+					<CommentForm
+						collection={collection}
+						contentId={contentId}
+						parentId={id}
+						labels={formLabels}
+					/>
+				</div>
+			))}
+		</div>
+	)
+}
+
+<script>
+	document.addEventListener("click", (event) => {
+		const target = event.target;
+		if (!(target instanceof Element)) return;
+		const button = target.closest<HTMLButtonElement>("[data-reply-to]");
+		if (!button) return;
+
+		const id = button.dataset.replyTo;
+		const wrapper = id
+			? document.querySelector<HTMLElement>(
+					`[data-reply-form-for="${CSS.escape(id)}"]`,
+				)
+			: null;
+		if (!wrapper) return;
+
+		const open = button.getAttribute("aria-expanded") === "true";
+		if (open) {
+			wrapper.hidden = true;
+			button.setAttribute("aria-expanded", "false");
+			button.textContent = button.dataset.labelOpen ?? "返信";
+			return;
+		}
+
+		// Place the form right under the button it belongs to.
+		const actions = button.closest(".comment-reply");
+		actions?.parentNode?.insertBefore(wrapper, actions.nextSibling);
+		wrapper.hidden = false;
+		button.setAttribute("aria-expanded", "true");
+		button.textContent = button.dataset.labelClose ?? "返信をやめる";
+		wrapper.querySelector<HTMLTextAreaElement>("textarea[name='body']")?.focus();
+	});
+</script>

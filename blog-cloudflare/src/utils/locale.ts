@@ -67,3 +67,19 @@ export function getSiteYearMonth(date: Date): { year: number; month: number } {
 export function siteMonthStart(year: number, month: number): Date {
 	return new Date(Date.UTC(year, month - 1, 1) - SITE_UTC_OFFSET_MS);
 }
+
+/**
+ * Formats a date and time in the site's locale and in Japan time, e.g.
+ * 2026年10月24日 07:59. Used for comment timestamps.
+ */
+export function formatDateTime(date: Date): string {
+	return new Intl.DateTimeFormat(dateLocale(), {
+		timeZone: SITE_TIME_ZONE,
+		year: "numeric",
+		month: "long",
+		day: "numeric",
+		hour: "2-digit",
+		minute: "2-digit",
+		hourCycle: "h23",
+	}).format(date);
+}
