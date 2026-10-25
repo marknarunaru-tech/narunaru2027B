@@ -46,3 +46,28 @@ export function toOgImageMeta(media: MediaLike | null | undefined): OgImageMeta 
 	};
 	return Object.keys(meta).length > 0 ? meta : null;
 }
+
+const MEDIA_FILE_PATH_RE = /^\/_emdash\/api\/media\/file\/([^/?#]+)$/;
+
+/**
+ * Point a same-site /_emdash/api/media/file/<key> URL at /og/<key>, which
+ * serves the same file outside /_emdash/ (Facebook refuses that path).
+ * Any other URL, including external images, is returned unchanged.
+ */
+export function toOgImageUrl(
+	url: string | null | undefined,
+	origin: string,
+): string | null | undefined {
+	if (!url) return url;
+	let parsed: URL;
+	try {
+		parsed = new URL(url, origin);
+	} catch {
+		return url;
+	}
+	if (parsed.origin !== new URL(origin).origin || parsed.search || parsed.hash) {
+		return url;
+	}
+	const match = MEDIA_FILE_PATH_RE.exec(parsed.pathname);
+	return match ? `${parsed.origin}/og/${match[1]}` : url;
+}

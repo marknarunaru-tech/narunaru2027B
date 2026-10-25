@@ -11,7 +11,7 @@ import { Font } from "astro:assets";
 import WidgetArea from "../components/WidgetArea.astro";
 import { getSiteLocale } from "../utils/locale";
 import { resolveBlogSiteIdentity } from "../utils/site-identity";
-import { toOgImageMeta, type OgImageMeta } from "../utils/og-image";
+import { toOgImageMeta, toOgImageUrl, type OgImageMeta } from "../utils/og-image";
 import "../styles/tokens.css";
 import "../styles/theme.css";
 
@@ -77,6 +77,16 @@ const ogImageMeta: OgImageMeta | null = image
 		? toOgImageMeta(settingsResult.data.seo?.defaultOgImage)
 		: null;
 
+// og:image / twitter:image: serve uploaded images from /og/<key> instead of
+// /_emdash/api/media/file/<key>. With no page image, pass the site default
+// OG image explicitly so it gets the same treatment.
+const defaultOgImageUrl = settingsResult.data.seo?.defaultOgImage?.url;
+const ogImageUrl = image
+	? toOgImageUrl(image, Astro.url.origin)
+	: imageMeta === undefined && defaultOgImageUrl
+		? toOgImageUrl(new URL(defaultOgImageUrl, Astro.url.origin).href, Astro.url.origin)
+		: image;
+
 const menu = menuResult.data;
 const menuItems = menu?.items ?? [];
 
@@ -90,9 +100,9 @@ const pageCtx = createPublicPageContext({
 	pageTitle: pageTitle ?? title,
 	description,
 	canonical,
-	image,
+	image: ogImageUrl,
 	content,
-	seo: { ogImage: image, robots },
+	seo: { ogImage: ogImageUrl, robots },
 	articleMeta: { publishedTime, modifiedTime, author },
 	siteName: siteTitle,
 });
