@@ -11,6 +11,7 @@ import { Font } from "astro:assets";
 import WidgetArea from "../components/WidgetArea.astro";
 import { getSiteLocale } from "../utils/locale";
 import { resolveBlogSiteIdentity } from "../utils/site-identity";
+import { toOgImageMeta, type OgImageMeta } from "../utils/og-image";
 import "../styles/tokens.css";
 import "../styles/theme.css";
 
@@ -19,6 +20,12 @@ interface Props {
 	pageTitle?: string | null;
 	description?: string | null;
 	image?: string | null;
+	/**
+	 * Size/type/alt of `image`, from its media record. Leave undefined when
+	 * no `image` is passed to fall back to the site default OG image's
+	 * details; pass null when the og:image's details are unknown.
+	 */
+	imageMeta?: OgImageMeta | null;
 	canonical?: string | null;
 	robots?: string | null;
 	type?: "website" | "article";
@@ -34,6 +41,7 @@ const {
 	pageTitle,
 	description,
 	image,
+	imageMeta,
 	canonical,
 	robots,
 	type = "website",
@@ -59,6 +67,15 @@ const titleIncludesSiteName =
 	title.endsWith(` | ${siteTitle}`) ||
 	title.endsWith(` — ${siteTitle}`);
 const fullTitle = titleIncludesSiteName ? title : `${title} — ${siteTitle}`;
+
+// og:image:width/height/type/alt for whichever image EmDashHead emits as
+// og:image: the page's own image (details passed in by the page), or the
+// site default OG image when the page has none.
+const ogImageMeta: OgImageMeta | null = image
+	? (imageMeta ?? null)
+	: imageMeta === undefined
+		? toOgImageMeta(settingsResult.data.seo?.defaultOgImage)
+		: null;
 
 const menu = menuResult.data;
 const menuItems = menu?.items ?? [];
@@ -117,6 +134,14 @@ const copyrightYears = year > 2025 ? `2025–${year}` : "2025";
 		<Font cssVariable="--font-mono" />
 		<title>{fullTitle}</title>
 		<EmDashHead page={pageCtx} />
+		{ogImageMeta?.width && ogImageMeta?.height && (
+			<>
+				<meta property="og:image:width" content={String(ogImageMeta.width)} />
+				<meta property="og:image:height" content={String(ogImageMeta.height)} />
+			</>
+		)}
+		{ogImageMeta?.type && <meta property="og:image:type" content={ogImageMeta.type} />}
+		{ogImageMeta?.alt && <meta property="og:image:alt" content={ogImageMeta.alt} />}
 		<link rel="icon" href="/favicon.ico" sizes="32x32" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />

@@ -37,6 +37,7 @@ const seo = getSeoMeta(page, {
 	description={seo.description}
 	canonical={seo.canonical}
 	robots={seo.robots}
+	imageMeta={seo.ogImage ? null : undefined}
 	content={{ collection: "pages", id: page.data.id, slug }}
 >
 	<article class="band page">
