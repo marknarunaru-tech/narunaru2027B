@@ -17,6 +17,7 @@ import CommentThread from "../../components/CommentThread.astro";
 import { formatDate } from "../../utils/locale";
 import { getReadingTime } from "../../utils/reading-time";
 import { resolveBlogSiteIdentity } from "../../utils/site-identity";
+import { toOgImageMeta } from "../../utils/og-image";
 import "../../styles/prose.css";
 
 const slug = decodeSlug(Astro.params.slug);
@@ -64,6 +65,15 @@ const seo = getSeoMeta(post, {
 	path: Astro.url.pathname.replace(/\/$/, ""),
 	defaultOgImage: featuredImageUrl,
 });
+
+// og:image details are only known when og:image is the featured image
+// (an SEO-panel image overrides it and has no size info here). With no
+// image at all, leave undefined so Base uses the site default's details.
+const ogImageMeta = !seo.ogImage
+	? undefined
+	: seo.ogImage === featuredImageUrl
+		? toOgImageMeta(post.data.featured_image)
+		: null;
 
 // Bylines are already hydrated by getEmDashEntry
 const bylines = post.data.bylines ?? [];
@@ -129,6 +139,7 @@ const commentFormLabels = {
 	pageTitle={seo.ogTitle}
 	description={seo.description}
 	image={seo.ogImage}
+	imageMeta={ogImageMeta}
 	canonical={seo.canonical}
 	robots={seo.robots}
 	type="article"
